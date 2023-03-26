@@ -2,7 +2,7 @@ package util;
 import java.util.HashMap;
 import java.util.Set;
 
-public class MyJSON extends HashMap<String, Object>{
+public class MyJSON extends HashMap<String, String>{
 
     public MyJSON() {
         super();
