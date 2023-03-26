@@ -8,6 +8,20 @@ public class MyJSON extends HashMap<String, String>{
         super();
     }
 
+    public MyJSON(String s) {
+        super();
+        String[] remove = {"{", "}"};
+        for (String string : remove) {
+            s = s.replace(string, "");
+        }
+        String[] kvp = s.split(", ");
+        for (String string : kvp) {
+            String k = string.split(":")[0].replace("\"", "");
+            String v = string.split(":")[1].replace("\"", "");
+            this.put(k, v);
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("{");
@@ -20,21 +34,6 @@ public class MyJSON extends HashMap<String, String>{
         }
         sb.append("}");
         return sb.toString();
-    }
-
-    public static MyJSON parseString(String s) {
-        MyJSON json = new MyJSON();
-        String[] remove = {"{", "}"};
-        for (String string : remove) {
-            s = s.replace(string, "");
-        }
-        String[] kvp = s.split(", ");
-        for (String string : kvp) {
-            String k = string.split(":")[0].replace("\"", "");
-            String v = string.split(":")[1].replace("\"", "");
-            json.put(k, v);
-        }
-        return json;
     }
 
     public static void main(String[] args) {
