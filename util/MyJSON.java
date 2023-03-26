@@ -35,8 +35,4 @@ public class MyJSON extends HashMap<String, String>{
         sb.append("}");
         return sb.toString();
     }
-
-    public static void main(String[] args) {
-        System.out.println(MyJSON.parseString("{\"test\":\"a thing\", \"this\":\"12345\"}"));
-    }
 }
