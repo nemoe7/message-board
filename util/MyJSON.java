@@ -14,8 +14,9 @@ public class MyJSON extends HashMap<String, String>{
         for (String string : remove) {
             s = s.replace(string, "");
         }
-        String[] kvp = s.split(", ");
+        String[] kvp = s.split(",");
         for (String string : kvp) {
+            string = string.trim();
             String k = string.split(":")[0].replace("\"", "");
             String v = string.split(":")[1].replace("\"", "");
             this.put(k, v);
