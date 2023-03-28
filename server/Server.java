@@ -49,6 +49,9 @@ public class Server extends Thread {
                         Client c = new Client(packet);
                         clientMap.put(sa, c);
                         System.out.println("Server: New client connected at " + c + ".");
+                        MyJSON ack = new MyJSON();
+                        ack.put("command", "join");
+                        send(c, ack);
                     } else { // Error otherwise
                         error(clientMap.get(sa), "Client already connected.");
                     }
@@ -88,6 +91,8 @@ public class Server extends Thread {
                             } else {
                                 error(c, "Handle or alias not found.");
                             }
+                        } else {
+                            error(c, "Command not found.");
                         }
                     }
                 }
