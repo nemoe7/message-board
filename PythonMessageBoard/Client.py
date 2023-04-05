@@ -132,8 +132,14 @@ def sender():
 def receiver():
 
     while(True):
-        bytesAddressPair = UDPClientSocket.recvfrom(bufferSize) # Receive from Server a tuple (bytes, address)
-        printServer(bytesAddressPair)
+        try:
+            bytesAddressPair = UDPClientSocket.recvfrom(bufferSize) # Receive from Server a tuple (bytes, address)
+            printServer(bytesAddressPair)
+        except:
+            print("Error: Connection to the Message Board Server has failed!")
+            print("Please check IP Address and Port Number")
+
+
 
 import json
 import socket
