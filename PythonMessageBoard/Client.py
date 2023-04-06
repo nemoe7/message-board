@@ -1,4 +1,4 @@
-def join(userCommand):  
+def join(userCommand):
     try:
         inputCommand = str.split(userCommand," ")
         jsonFormat =  { "command":inputCommand[0]}
@@ -93,7 +93,7 @@ def sender():
                 break
             else:
                 print("Error: Disconnection failed. Please connect to the server first.")
-            
+
             lock.release() # Release lock after modifying joined variable
 
         elif "/register" in userCommand:
@@ -106,7 +106,7 @@ def sender():
             # Sent to the server using UDP Socket
             UDPClientSocket.sendto(bytesSend, serverAddressPort)
 
-        elif "/all" in userCommand: 
+        elif "/all" in userCommand:
             bytesSend = all(userCommand)
             # Sent to the server using UDP Socket
             UDPClientSocket.sendto(bytesSend, serverAddressPort)
@@ -123,7 +123,7 @@ def sender():
             print("Syntax commands references: /?")
             print("----------------------------")
             print(" ")
-            
+
         else:
             print("Error: Command not found.")
 
@@ -147,7 +147,7 @@ import threading
 import time
 
 encoding = 'utf-8'
-bufferSize = 1024          
+bufferSize = 1024
 global serverAddressPort
 global joined
 joined = False
@@ -159,7 +159,8 @@ lock = threading.Lock()
 
 while (joined==False):
     userStartCommand = input("Enter command: ")
-    if "/join" in userStartCommand:
+    commandLen = len(str.split(userStartCommand, " "))
+    if "/join" in userStartCommand and commandLen == 3:
         try:
             bytesSend, serverAddressPort = join(userStartCommand)
 
