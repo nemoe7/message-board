@@ -34,6 +34,7 @@ while(True):
     jsonMsg = json.loads(convertMsg) # Parse str to json
 
     if jsonMsg["command"] == "/join":
+        print("New client connected at " + address[0] + ":" + str(address[1]))
         bytesToSend = msgToClient("Connection Successful! Welcome!")
         UDPserver.sendto(bytesToSend, address) # Sending a reply to client
 
@@ -56,7 +57,7 @@ while(True):
                 msgFromServer = "Welcome " + jsonMsg["handle"] + "!"
                 bytesToSend = msgToClient(msgFromServer)
                 print(handles)
-            
+
         UDPserver.sendto(bytesToSend, address) # Sending a reply to client
 
     elif jsonMsg["command"] == "/msg":
@@ -84,5 +85,5 @@ while(True):
         bytesToSend = msgToClient("\n" + srcHandle + ": " + msgSrcClient + "\nEnter command: ")
 
         for x in handles:
-            destAddr = x["addr"] 
+            destAddr = x["addr"]
             UDPserver.sendto(bytesToSend, destAddr) # Sending a reply to destination clients
