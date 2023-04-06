@@ -78,12 +78,19 @@ while(True):
             UDPserver.sendto(bytesToSend, address)
 
     elif jsonMsg["command"] == "/all":
-        srcList = next(x for x in handles if x["addr"] == address)
-        srcHandle = srcList['handle']
-        msgSrcClient = jsonMsg["message"]
+        list = [x for x in handles if x["addr"] == address]
+        obj = iter(list)
+        srcList = next(obj, 1)
+        if srcList == 1:
+            msgFromServer = "Invalid command. Client not registered. Type /register to register"
+            bytesToSend = msgToClient(msgFromServer)
+            UDPserver.sendto(bytesToSend, address)
+        else:
+            srcHandle = srcList['handle']
+            msgSrcClient = jsonMsg["message"]
 
-        bytesToSend = msgToClient("\n" + srcHandle + ": " + msgSrcClient + "\nEnter command: ")
+            bytesToSend = msgToClient("\n" + srcHandle + ": " + msgSrcClient + "\nEnter command: ")
 
-        for x in handles:
-            destAddr = x["addr"]
-            UDPserver.sendto(bytesToSend, destAddr) # Sending a reply to destination clients
+            for x in handles:
+                destAddr = x["addr"] 
+                UDPserver.sendto(bytesToSend, destAddr) # Sending a reply to destination clients
