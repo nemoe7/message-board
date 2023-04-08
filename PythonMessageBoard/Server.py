@@ -35,41 +35,49 @@ while(True):
 
     if jsonMsg["command"] == "/join":
         print("New client connected at " + address[0] + ":" + str(address[1]))
-        bytesToSend = msgToClient("Connection Successful! Welcome!")
+        bytesToSend = msgToClient("Message from Server: Connection Successful! Welcome!")
         UDPserver.sendto(bytesToSend, address) # Sending a reply to client
 
     elif jsonMsg["command"] == "/leave":
-        bytesToSend = msgToClient("Connection closed. Thank you!")
+        bytesToSend = msgToClient("Message from Server: Connection closed. Thank you!")
         UDPserver.sendto(bytesToSend, address) # Sending a reply to client
         print("A connection closed.")
-
+        handles = [i for i in handles if i['addr'] != address]
+        print(handles)
     elif jsonMsg["command"] == "/register":
         if (len(handles) == 0):
             handles.append({'handle' : jsonMsg["handle"], 'addr' : address})
-            msgFromServer = "Welcome " + jsonMsg["handle"] + "!"
+            msgFromServer = "Message from Server: Welcome " + jsonMsg["handle"] + "!"
             bytesToSend = msgToClient(msgFromServer)
             print(handles)
+        elif any(d['addr'] == address for d in handles):
+            bytesToSend  = msgToClient("Error: Registration failed. You are already registered.")
+        elif any(d['handle'] == jsonMsg["handle"] for d in handles):
+            bytesToSend  = msgToClient("Error: Registration failed. Handle or alias already exists.")
         else:
-            if any(d['handle'] == jsonMsg["handle"] for d in handles):
-                bytesToSend  = msgToClient("Error: Registration failed. Handle or alias already exists.")
-            else:
-                handles.append({'handle' : jsonMsg["handle"], 'addr' : address})
-                msgFromServer = "Welcome " + jsonMsg["handle"] + "!"
-                bytesToSend = msgToClient(msgFromServer)
-                print(handles)
+            handles.append({'handle' : jsonMsg["handle"], 'addr' : address})
+            msgFromServer = "Message from Server: Welcome " + jsonMsg["handle"] + "!"
+            bytesToSend = msgToClient(msgFromServer)
+            print(handles)
 
         UDPserver.sendto(bytesToSend, address) # Sending a reply to client
 
     elif jsonMsg["command"] == "/msg":
-        if any(d['handle'] == jsonMsg["handle"] for d in handles):
-            destList = next(x for x in handles if x["handle"] == jsonMsg["handle"])
-            destAddr=destList['addr']
-            srcList = next(x for x in handles if x["addr"] == address)
+        list = [x for x in handles if x['addr'] == address]
+        obj = iter(list)
+        srcList = next(obj, 1)
+        if srcList == 1:
+            msgFromServer = "Message from Server: Invalid command. Client not registered. Type /register to register"
+            bytesToSend = msgToClient(msgFromServer)
+            UDPserver.sendto(bytesToSend, address)
+        elif any(d['handle'] == jsonMsg["handle"] for d in handles):
+            destList = next(y for y in handles if y['handle'] == jsonMsg["handle"])
+            destAddr = destList['addr']
             srcHandle = srcList['handle']
 
             msgSrcClient = jsonMsg["message"]
-            bytesSendDest = msgToClient("\n[From " + srcHandle + "]: " + msgSrcClient + "\nEnter command: ")
-            bytesSendSource = msgToClient("\n[To " + jsonMsg["handle"] + "]: " + msgSrcClient)
+            bytesSendDest = msgToClient("[From " + srcHandle + "]: " + msgSrcClient + "\nEnter command: ")
+            bytesSendSource = msgToClient("[To " + jsonMsg["handle"] + "]: " + msgSrcClient)
 
             UDPserver.sendto(bytesSendDest, destAddr) # Sending a reply to destination client
             UDPserver.sendto(bytesSendSource, address) # Sending a reply to source client
@@ -78,19 +86,24 @@ while(True):
             UDPserver.sendto(bytesToSend, address)
 
     elif jsonMsg["command"] == "/all":
-        list = [x for x in handles if x["addr"] == address]
+        list = [x for x in handles if x['addr'] == address]
         obj = iter(list)
         srcList = next(obj, 1)
         if srcList == 1:
-            msgFromServer = "Invalid command. Client not registered. Type /register to register"
+            msgFromServer = "Message from Server: Invalid command. Client not registered. Type /register to register"
             bytesToSend = msgToClient(msgFromServer)
             UDPserver.sendto(bytesToSend, address)
         else:
             srcHandle = srcList['handle']
             msgSrcClient = jsonMsg["message"]
 
-            bytesToSend = msgToClient("\n" + srcHandle + ": " + msgSrcClient + "\nEnter command: ")
-
-            for x in handles:
-                destAddr = x["addr"] 
-                UDPserver.sendto(bytesToSend, destAddr) # Sending a reply to destination clients
+            bytesToSend = msgToClient(srcHandle + ": " + msgSrcClient + "\nEnter command: ")
+            bytesToSrc = msgToClient(srcHandle + ": " + msgSrcClient)
+        
+            for d in handles:
+                if d['handle'] == srcList['handle']:
+                    srcAddr = d['addr']
+                    UDPserver.sendto(bytesToSrc, srcAddr) # Source client recieving echo back reply
+                else:
+                    destAddr = d['addr'] 
+                    UDPserver.sendto(bytesToSend, destAddr) # Sending a reply to destination clients

@@ -9,7 +9,8 @@ def join(userCommand):
         serverAP = (inputCommand[1], int(inputCommand[2])) # Server Address Port
 
         print(serverAP)
-
+        if inputCommand[1] != "127.0.0.1":
+            print("Error: Joining into an incorrect IP address. Please check your IP address")
         return bytesSend, serverAP
     except:
         print("Error: Command parameters do not match or is not allowed.")
@@ -35,7 +36,6 @@ def register(userCommand):
 
 def msg(userCommand):
     inputCommand = str.split(userCommand," ",2)
-    print(inputCommand)
     jsonFormat =  { "command":inputCommand[0], "handle":inputCommand[1], "message":inputCommand[2]}
 
     # converting to JSON
@@ -57,7 +57,7 @@ def all(userCommand):
 def printServer(bytesAddressPair):
     convertMsg = str(bytesAddressPair[0], encoding)
     jsonMsg = json.loads(convertMsg)
-    serverMsg = "\nMessage from Server: {}".format(jsonMsg["message"])
+    serverMsg = "\n{}".format(jsonMsg["message"])
     print(serverMsg)
 
 # Listen for incoming datagrams
@@ -83,7 +83,7 @@ def sender():
                 finally:
                     lock.release() # Release lock after modifying joined variable
 
-            elif "/leave" in userCommand:
+            elif "/leave" in userCommand and commandLen == 1:
                 lock.acquire() # Acquire lock before modifying joined variable
                 if joined == True:
                     bytesSend = leave(userCommand)
@@ -91,13 +91,12 @@ def sender():
                     # Sent to the server using UDP Socket
                     UDPClientSocket.sendto(bytesSend, serverAddressPort)
                     joined = False
-                    break
                 else:
                     print("Error: Disconnection failed. Please connect to the server first.")
 
                 lock.release() # Release lock after modifying joined variable
 
-            elif "/register" in userCommand:
+            elif "/register" in userCommand and commandLen == 2:
                 bytesSend = register(userCommand)
                 # Sent to the server using UDP Socket
                 UDPClientSocket.sendto(bytesSend, serverAddressPort)
